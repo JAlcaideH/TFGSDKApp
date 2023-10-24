@@ -22,4 +22,14 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </fragment>
 
+    <TextView
+        android:id="@+id/v2x_connectivity_state_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        tools:ignore="MissingConstraints" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

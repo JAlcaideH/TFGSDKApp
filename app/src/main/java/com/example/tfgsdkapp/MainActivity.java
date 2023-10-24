@@ -13,9 +13,11 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tfgsdkapp.databinding.ActivityMainBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -46,9 +48,9 @@ import com.vodafone.v2x.sdk.android.facade.models.GpsLocation;
 import com.vodafone.v2x.sdk.android.facade.records.ITSLocationRecord;
 import com.vodafone.v2x.sdk.android.facade.records.cam.CAMRecord;
 
+
 import java.util.ArrayList;
 import java.util.List;
-
 public class MainActivity extends AppCompatActivity implements EventListener, OnMapReadyCallback {
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -59,9 +61,9 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
     private ArrayList<Marker> mCAMMarkers;
 
     private SDKConfiguration sdkConfig;
+    //Objeto que mantiene los elementos UI y provee acceso a ellos
 
-    private Long contador = 0L;
-    private Long contador2 = 0L;
+    private ActivityMainBinding binding;
 
     private void initV2XService() {
         try {
@@ -110,7 +112,11 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //Código para que se vea el texto "Connected"
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
+        //setContentView(R.layout.activity_main);
 
         boolean hasPermission = checkLocationPermission();
         if (hasPermission) {
@@ -124,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(MainActivity.this);
+
     }
 
     public boolean checkLocationPermission() {
@@ -221,7 +228,9 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
                     }
                 });
             } else if (baseEvent.getEventType() == EventType.V2X_CONNECTIVITY_STATE_CHANGED) {
-                contador2++;
+                    EventV2XConnectivityStateChanged eventV2XConnectivityStateChanged = (EventV2XConnectivityStateChanged) baseEvent;
+                    setOnUIThread(binding.v2xConnectivityStateTextView, eventV2XConnectivityStateChanged.getConnectivityState().toString());
+
             }
 
     }
@@ -331,6 +340,11 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
                 false);
 
         return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    //Metodo para mostrar el estado
+    private void setOnUIThread(TextView view, String text) {
+        runOnUiThread(() -> view.setText(text));
     }
 
 }
