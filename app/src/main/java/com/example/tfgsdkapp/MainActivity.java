@@ -48,6 +48,9 @@ import com.vodafone.v2x.sdk.android.facade.models.GpsLocation;
 import com.vodafone.v2x.sdk.android.facade.records.ITSLocationRecord;
 import com.vodafone.v2x.sdk.android.facade.records.cam.CAMRecord;
 
+import com.everysight.evskit.android.Evs;
+import UIKit.services.IEvsCommunicationEvents;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
                 }
             }
         }
+        //Evs.init(this).start();
     }
 
 
