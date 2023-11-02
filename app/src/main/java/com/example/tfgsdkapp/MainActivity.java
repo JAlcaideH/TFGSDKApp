@@ -49,6 +49,8 @@ import com.vodafone.v2x.sdk.android.facade.records.ITSLocationRecord;
 import com.vodafone.v2x.sdk.android.facade.records.cam.CAMRecord;
 
 import com.everysight.evskit.android.Evs;
+
+import UIKit.services.IEvsAppEvents;
 import UIKit.services.IEvsCommunicationEvents;
 
 
@@ -64,8 +66,8 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
     private ArrayList<Marker> mCAMMarkers;
 
     private SDKConfiguration sdkConfig;
-    //Objeto que mantiene los elementos UI y provee acceso a ellos
 
+    //Objeto que mantiene los elementos UI y provee acceso a ellos
     private ActivityMainBinding binding;
 
     private void initV2XService() {
@@ -109,9 +111,7 @@ public class MainActivity extends AppCompatActivity implements EventListener, On
                 }
             }
         }
-        //Evs.init(this).start();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
