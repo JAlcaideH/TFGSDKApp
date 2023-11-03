@@ -1,3 +1,4 @@
+@file:JvmName("MainActivityGlasses")
 package com.example.tfgsdkapp
 
 import UIKit.services.AppErrorCode
@@ -47,7 +48,7 @@ class MainActivityGlasses : Activity(), IEvsCommunicationEvents, IEvsAppEvents {
         Evs.instance().stop()
     }
 
-    private fun initSdk() {
+     fun initSdk() {
         Evs.init(this).start()
         Evs.startDefaultLogger()//optional
         Evs.instance().registerAppEvents(this)
@@ -58,7 +59,7 @@ class MainActivityGlasses : Activity(), IEvsCommunicationEvents, IEvsAppEvents {
 
     }
 
-    private fun checkPerm() {
+     fun checkPerm() {
         var permissionsRequested = ArrayList<String>()
         permissionsRequested.add(Manifest.permission.ACCESS_COARSE_LOCATION)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -76,7 +77,7 @@ class MainActivityGlasses : Activity(), IEvsCommunicationEvents, IEvsAppEvents {
         }
     }
 
-    private fun validatePermissions(permissionsRequested: ArrayList<String>): ArrayList<String> {
+     fun validatePermissions(permissionsRequested: ArrayList<String>): ArrayList<String> {
         val permissionsToRequest = ArrayList<String>()
         for (permission in permissionsRequested) {
             if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
