@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.vodafone.v2x.sdk.android.facade.SDKConfiguration
 import com.vodafone.v2x.sdk.android.facade.SDKConfiguration.SDKConfigurationBuilder
 import com.vodafone.v2x.sdk.android.facade.V2XSDK
@@ -62,6 +63,8 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     private var sdkConfig: SDKConfiguration? = null
     private lateinit var txtStatus: TextView
     private val glassesScreen = GlassesScreen()
+    var mostrarMensaje: Snackbar? = null //Para mostrar la alerta de vehiculo cercano
+    var estaMostrando = false
    // private lateinit var locbefore: GpsLocation
    // private var eventCamListChangedBefore: EventCamListChanged = EventCamListChanged(null)
    lateinit var lastLocation: GpsLocation
@@ -233,18 +236,22 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     }
 
     private fun compararPosiciones(location: GpsLocation,camRecords: List<CAMRecord>) {
-        var velocidad: Float
-
 
         for (record in camRecords.drop(1)) {
             if(estanCerca(camRecords.first().latitude.toDouble(),camRecords.first().longitude.toDouble()
                     ,record.latitude.toDouble(),record.longitude.toDouble())) //comparamo el primer registro que será el propio
                                                                                 //con el segundo y sucesivos que es de otros dispositivos
             {
-                setOnUIThread(binding!!.LOCATIONSAMEtest,"samelocation")
+                if(!estaMostrando){
+                    val rootView = findViewById<View>(android.R.id.content)
+                    mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
+                    mostrarMensaje?.show()
+                    estaMostrando = true
+                }
+            } else {
+                mostrarMensaje?.dismiss()
+                estaMostrando = false
             }
-            velocidad = record.speedInKmH
-
         }
     }
 
