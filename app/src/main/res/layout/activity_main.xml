@@ -11,7 +11,7 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,19 +38,24 @@
         tools:layout_editor_absoluteX="2dp"
         tools:layout_editor_absoluteY="0dp" />
 
-
-
-    <TextView
-        android:id="@+id/LOCATIONSAMEtest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="locationalert"
-        android:textColor="@color/black"
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="97dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="108dp"
+        android:alpha=".8"
+        android:clickable="true"
+        android:contentDescription="@string/settings_button"
+        android:focusable="true"
+        android:onClick="onClickSettingsLogo"
+        android:scaleType="centerInside"
+        android:text="Settings"
         android:textSize="11sp"
-        android:textStyle="bold"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="2dp"
-        tools:layout_editor_absoluteY="19dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.005"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
