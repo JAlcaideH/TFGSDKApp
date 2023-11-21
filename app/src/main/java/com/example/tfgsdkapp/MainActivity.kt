@@ -6,6 +6,7 @@ import UIKit.services.IEvsCommunicationEvents
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,7 +14,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
+import com.vodafone.v2x.sdk.android.core.messages.cpm_pdu_descriptions.CpmManagementContainer._stationType
 import com.vodafone.v2x.sdk.android.facade.SDKConfiguration
 import com.vodafone.v2x.sdk.android.facade.SDKConfiguration.SDKConfigurationBuilder
 import com.vodafone.v2x.sdk.android.facade.V2XSDK
@@ -47,12 +48,6 @@ import com.vodafone.v2x.sdk.android.facade.events.EventV2XConnectivityStateChang
 import com.vodafone.v2x.sdk.android.facade.exception.InvalidConfigException
 import com.vodafone.v2x.sdk.android.facade.models.GpsLocation
 import com.vodafone.v2x.sdk.android.facade.records.cam.CAMRecord
-import java.lang.Math.PI
-import java.lang.Math.atan2
-import java.lang.Math.cos
-import java.lang.Math.sin
-import java.lang.Math.sqrt
-import kotlin.math.pow
 
 class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEvsCommunicationEvents, IEvsAppEvents {
     private var mHasPermission = false
@@ -63,12 +58,13 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     private var sdkConfig: SDKConfiguration? = null
     private lateinit var txtStatus: TextView
     private val glassesScreen = GlassesScreen()
-    var mostrarMensaje: Snackbar? = null //Para mostrar la alerta de vehiculo cercano
-    var estaMostrando = false
-   // private lateinit var locbefore: GpsLocation
-   // private var eventCamListChangedBefore: EventCamListChanged = EventCamListChanged(null)
-   lateinit var lastLocation: GpsLocation
+    lateinit var lastLocation: GpsLocation
+    var myStationType: Int = 0
     var lastCamList: List<CAMRecord>? = null
+    var estaMostrando = false
+    var mostrarMensaje: Snackbar? = null //Para mostrar la alerta de vehiculo cercano
+    val service = Service()
+
 
 
     //Objeto que mantiene los elementos UI y provee acceso a ellos
@@ -80,7 +76,8 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
                 .withMqttClientKind(mqttClient)
             cfg.withMqttUsername("0069d2b0-6bae-479c-ac3f-633d534f96b2")
             cfg.withMqttPassword("9842b50e-f39c-4d8a-9ef6-2f8a8e59e1d7")
-            cfg.withStationType(StationType.CYCLIST)
+            //cfg.withStationType(StationType.CYCLIST)
+            cfg.withStationType(StationType.HEAVY_TRUCK)
             cfg.withCAMServiceEnabled(true)
             cfg.withCamServiceMode(ServiceMode.TxAndRx)
             cfg.withCAMPublishGroup("510482_1")
@@ -113,6 +110,10 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         }
     }
 
+    fun onClickSettingsLogo(view: View?) {
+        startActivity(Intent(this, SettingsActivity::class.java))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //Código para que se vea el texto "Connected"
@@ -133,10 +134,15 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
 
         checkPerm()
         initSdk()
+
         Evs.instance().screens().addScreen(glassesScreen)
         //findViewById<Button>(R.id.btnSettings).setOnClickListener{
         //    Evs.instance().showUI("settings")
         //}
+
+        //guardo el stationId que soy yo
+        myStationType = V2XSDK.getInstance().sdkConfiguration.stationType.ordinal;
+
 
     }
 
@@ -222,8 +228,10 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             val localCamList = eventCamListChanged.list //nos servirá para ver la distancia
             runOnUiThread { onCamListChanged(eventCamListChanged) }
             if(lastLocation != null && localCamList.size > 1 ){
-                compararPosiciones(lastLocation,localCamList) //funcion para ver a que distancia estám
-                //TODO: ver a que velocidad va acercandose
+                if(myStationType == _stationType.cyclist) {
+                    compararPosiciones(localCamList) //funcion para ver a que distancia estám
+                    //TODO: ver a que velocidad va acercandose
+                }
             }
         } else if (baseEvent.eventType == EventType.V2X_CONNECTIVITY_STATE_CHANGED) {
             val eventV2XConnectivityStateChanged = baseEvent as EventV2XConnectivityStateChanged
@@ -232,46 +240,32 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
                 eventV2XConnectivityStateChanged.connectivityState.toString()
             )
         }
-
     }
 
-    private fun compararPosiciones(location: GpsLocation,camRecords: List<CAMRecord>) {
 
+    private fun compararPosiciones(camRecords: List<CAMRecord>) {
         for (record in camRecords.drop(1)) {
-            if(estanCerca(camRecords.first().latitude.toDouble(),camRecords.first().longitude.toDouble()
-                    ,record.latitude.toDouble(),record.longitude.toDouble())) //comparamo el primer registro que será el propio
-                                                                                //con el segundo y sucesivos que es de otros dispositivos
-            {
-                if(!estaMostrando){
-                    val rootView = findViewById<View>(android.R.id.content)
-                    mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
-                    mostrarMensaje?.show()
-                    estaMostrando = true
+            if((record.stationType == _stationType.passengerCar || record.stationType == _stationType.heavyTruck
+                || record.stationType == _stationType.lightTruck || record.stationType == _stationType.bus)) {
+
+                if(service.estanCerca(camRecords.first().latitude.toDouble(),camRecords.first().longitude.toDouble()
+                        ,record.latitude.toDouble(),record.longitude.toDouble())) //comparamo el primer registro que será el propio
+                //con el segundo y sucesivos que es de otros dispositivos
+                {
+                    if(!estaMostrando){
+                        val rootView = findViewById<View>(android.R.id.content)
+                        mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
+                        mostrarMensaje?.show()
+                        estaMostrando = true
+                    }
+                } else {
+                    mostrarMensaje?.dismiss()
+                    estaMostrando = false
                 }
-            } else {
-                mostrarMensaje?.dismiss()
-                estaMostrando = false
             }
         }
     }
 
-    fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val radioTierra = 6371e3 // Radio de la Tierra en metros
-        val radLat1 = lat1 * PI / 180 // Convertir grados a radianes
-        val radLat2 = lat2 * PI / 180
-        val deltaLat = (lat2 - lat1) * PI / 180
-        val deltaLon = (lon2 - lon1) * PI / 180
-
-        val a = sin(deltaLat / 2).pow(2.0) + cos(radLat1) * cos(radLat2) * sin(deltaLon / 2).pow(2.0)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-        return radioTierra * c // Devuelve la distancia en metros
-    }
-
-    fun estanCerca(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Boolean {
-        val distancia = calcularDistancia(lat1, lon1, lat2, lon2)
-        return distancia <= 50 // Comprueba si la distancia es menor o igual a 100 metros
-    }
 
     private fun onCamListChanged(eventCamListChanged: EventCamListChanged) {
         if (mGoogleMap != null) {
@@ -391,7 +385,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             registerCommunicationEvents(this@MainActivity)
             if(hasConfiguredDevice()) connect()
         }
-
     }
 
     fun checkPerm() {
