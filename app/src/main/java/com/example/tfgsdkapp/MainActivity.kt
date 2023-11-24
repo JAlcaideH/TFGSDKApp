@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.everysight.evskit.android.Evs
 import com.example.tfgsdkapp.databinding.ActivityMainBinding
+import com.example.tfgsdkapp.utils.Parameters
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -66,18 +67,19 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     val service = Service()
 
 
-
     //Objeto que mantiene los elementos UI y provee acceso a ellos
     private var binding: ActivityMainBinding? = null
+
     private fun initV2XService() {
         try {
+            val parameters = Parameters.getInstance(this);
             val mqttClient = MqttClientKind.HiveMQv3
             val cfg = SDKConfigurationBuilder()
                 .withMqttClientKind(mqttClient)
             cfg.withMqttUsername("0069d2b0-6bae-479c-ac3f-633d534f96b2")
             cfg.withMqttPassword("9842b50e-f39c-4d8a-9ef6-2f8a8e59e1d7")
-            //cfg.withStationType(StationType.CYCLIST)
-            cfg.withStationType(StationType.HEAVY_TRUCK)
+            cfg.withStationType(parameters?.stationType ?: StationType.CYCLIST)
+            //cfg.withStationType(StationType.HEAVY_TRUCK)
             cfg.withCAMServiceEnabled(true)
             cfg.withCamServiceMode(ServiceMode.TxAndRx)
             cfg.withCAMPublishGroup("510482_1")
