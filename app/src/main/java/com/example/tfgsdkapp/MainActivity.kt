@@ -79,7 +79,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             cfg.withMqttUsername("0069d2b0-6bae-479c-ac3f-633d534f96b2")
             cfg.withMqttPassword("9842b50e-f39c-4d8a-9ef6-2f8a8e59e1d7")
             cfg.withStationType(parameters?.stationType ?: StationType.CYCLIST)
-            //cfg.withStationType(StationType.HEAVY_TRUCK)
             cfg.withCAMServiceEnabled(true)
             cfg.withCamServiceMode(ServiceMode.TxAndRx)
             cfg.withCAMPublishGroup("510482_1")
@@ -159,6 +158,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
+
             ) {
                 AlertDialog.Builder(this)
                     .setTitle("Location permission needed")
@@ -222,16 +222,14 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             if (itsLocationChangedEvent.list.size > 0) {
                 val lastItsRecord = itsLocationChangedEvent.list[0]
                 val location = lastItsRecord.location
-                lastLocation = location //CREO que se puede quitar
                 runOnUiThread { onITSUpdate(location) }
             }
         } else if (baseEvent.eventType == EventType.CAM_LIST_CHANGED) {
             val eventCamListChanged = baseEvent as EventCamListChanged
-            val localCamList = eventCamListChanged.list //nos servirá para ver la distancia
             runOnUiThread { onCamListChanged(eventCamListChanged) }
-            if(lastLocation != null && localCamList.size > 1 ){
+            if(eventCamListChanged.list.size > 1 ){
                 if(myStationType == _stationType.cyclist) {
-                    compararPosiciones(localCamList) //funcion para ver a que distancia estám
+                    showWarning(eventCamListChanged) //funcion para ver a que distancia estám
                     //TODO: ver a que velocidad va acercandose
                 }
             }
@@ -245,28 +243,50 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     }
 
 
-    private fun compararPosiciones(camRecords: List<CAMRecord>) {
-        for (record in camRecords.drop(1)) {
-            if((record.stationType == _stationType.passengerCar || record.stationType == _stationType.heavyTruck
-                || record.stationType == _stationType.lightTruck || record.stationType == _stationType.bus)) {
+    private fun showWarning(eventCamListChanged: EventCamListChanged) {
+        var atLeastOneNear = service.compararPosiciones(eventCamListChanged)
+        if(atLeastOneNear) {
+            if(!estaMostrando){
+                val rootView = findViewById<View>(android.R.id.content)
+                mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
+                mostrarMensaje?.show()
+                estaMostrando = true
+            }
+        } else {
+            if(estaMostrando) {
+                mostrarMensaje?.dismiss()
+                estaMostrando = false
+            }
+        }
+    }
+    /*private fun compararPosiciones(eventCamListChanged: EventCamListChanged) {
+        val camRecords = eventCamListChanged.list
+        val myRecord = camRecords.firstOrNull { it.stationID == V2XSDK.getInstance().sdkConfiguration.stationID}
+        var atLeastOneNear = false;
 
-                if(service.estanCerca(camRecords.first().latitude.toDouble(),camRecords.first().longitude.toDouble()
-                        ,record.latitude.toDouble(),record.longitude.toDouble())) //comparamo el primer registro que será el propio
-                //con el segundo y sucesivos que es de otros dispositivos
-                {
-                    if(!estaMostrando){
-                        val rootView = findViewById<View>(android.R.id.content)
-                        mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
-                        mostrarMensaje?.show()
-                        estaMostrando = true
+        if (myRecord != null) {
+            for (record in camRecords) {
+                if (record != myRecord) {
+                    if (service.estanCerca(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude)) {
+                        atLeastOneNear = true
                     }
-                } else {
+                }
+            }
+            if(atLeastOneNear) {
+                if(!estaMostrando){
+                    val rootView = findViewById<View>(android.R.id.content)
+                    mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
+                    mostrarMensaje?.show()
+                    estaMostrando = true
+                }
+            } else {
+                if(estaMostrando) {
                     mostrarMensaje?.dismiss()
                     estaMostrando = false
                 }
             }
         }
-    }
+    }*/
 
 
     private fun onCamListChanged(eventCamListChanged: EventCamListChanged) {

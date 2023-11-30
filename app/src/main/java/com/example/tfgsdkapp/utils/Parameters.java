@@ -12,7 +12,7 @@ import com.vodafone.v2x.sdk.android.facade.enums.StationType;
  * The class is a singleton and should be obtained through the static method `getInstance`.
  */
 public class Parameters {
-    private static final StationType DEFAULT_STATION_TYPE = StationType.PASSENGER_CAR;
+    private static final StationType DEFAULT_STATION_TYPE = StationType.CYCLIST;
     private static final String DEFAULT_APPLICATION_ID = "a74432c1-bca5-4f54-a4c3-5786699ce5ff";
     private static final String DEFAULT_APPLICATION_TOKEN = "6504d612-67a9-43fd-b362-caaca3b25acf";
     private static final String CAM_SUBSCRIBE_GROUP = "510298_1";

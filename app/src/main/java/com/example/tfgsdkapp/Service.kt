@@ -1,14 +1,19 @@
 package com.example.tfgsdkapp
 
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import com.vodafone.v2x.sdk.android.facade.V2XSDK
+import com.vodafone.v2x.sdk.android.facade.events.EventCamListChanged
 import com.vodafone.v2x.sdk.android.facade.models.GpsLocation
 import com.vodafone.v2x.sdk.android.facade.records.cam.CAMRecord
 import kotlin.math.pow
 
 class Service {
+    var estaMostrando = false
+    var mostrarMensaje: Snackbar? = null
 
-    fun calcularDistancia(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+    fun calcularDistancia(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Double {
         val radioTierra = 6371e3 // Radio de la Tierra en metros
         val radLat1 = lat1 * Math.PI / 180 // Convertir grados a radianes
         val radLat2 = lat2 * Math.PI / 180
@@ -23,9 +28,27 @@ class Service {
         return radioTierra * c // Devuelve la distancia en metros
     }
 
-    fun estanCerca(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Boolean {
+    fun estanCerca(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Boolean {
         val distancia = calcularDistancia(lat1, lon1, lat2, lon2)
         return distancia <= 50 // Comprueba si la distancia es menor o igual a 100 metros
     }
 
+
+    fun compararPosiciones(eventCamListChanged: EventCamListChanged) : Boolean {
+        val camRecords = eventCamListChanged.list
+        val myRecord =
+            camRecords.firstOrNull { it.stationID == V2XSDK.getInstance().sdkConfiguration.stationID }
+        var atLeastOneNear = false;
+
+        if (myRecord != null) {
+            for (record in camRecords) {
+                if (record != myRecord) {
+                    if (estanCerca(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude)) {
+                        atLeastOneNear = true
+                    }
+                }
+            }
+        }
+        return atLeastOneNear
+    }
 }
