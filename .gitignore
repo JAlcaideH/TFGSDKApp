@@ -14,3 +14,7 @@
 /.gradle/buildOutputCleanup/outputFiles.bin
 /.gradle/7.2/fileHashes/resourceHashesCache.bin
 /.gradle/checksums/sha1-checksums.bin
+local.properties
+misc.xml
+gradle.xml
+gradle.properties

@@ -66,6 +66,9 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     var mostrarMensaje: Snackbar? = null //Para mostrar la alerta de vehiculo cercano
     val service = Service()
 
+    //GLASSES
+    private val screen = GlassesScreen()
+
 
     //Objeto que mantiene los elementos UI y provee acceso a ellos
     private var binding: ActivityMainBinding? = null
@@ -117,6 +120,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         //Código para que se vea el texto "Connected"
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view: View = binding!!.root
@@ -131,19 +135,19 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         }
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment!!.getMapAsync(this@MainActivity)
-        val mainActivityGlasses = MainActivityGlasses()
-
-        checkPerm()
-        initSdk()
-
-        Evs.instance().screens().addScreen(glassesScreen)
-        //findViewById<Button>(R.id.btnSettings).setOnClickListener{
-        //    Evs.instance().showUI("settings")
-        //}
 
         //guardo el stationId que soy yo
         myStationType = V2XSDK.getInstance().sdkConfiguration.stationType.ordinal;
 
+        //NUEVO CODIGO PARA CONECTAR LAS GAFAS:
+        val options = hashSetOf("supportSimulator")
+        Evs.init(this).startExt(options)
+        Evs.instance().comm().setDeviceInfo("udp://192.168.1.146:9321","Simulator")
+
+        checkPerm()
+        initSdk()
+
+        Evs.instance().screens().addScreen(screen)
 
     }
 
