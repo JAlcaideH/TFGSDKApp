@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
 
     //GLASSES
     private val screen = GlassesScreen()
+    private var screenAlert : AlertScreen? = null
 
 
     //Objeto que mantiene los elementos UI y provee acceso a ellos
@@ -148,7 +149,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         initSdk()
 
         Evs.instance().screens().addScreen(screen)
-
     }
 
     fun checkLocationPermission(): Boolean {
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             runOnUiThread { onCamListChanged(eventCamListChanged) }
             if(eventCamListChanged.list.size > 1 ){
                 if(myStationType == _stationType.cyclist) {
-                    showWarning(eventCamListChanged) //funcion para ver a que distancia estám
+                    showWarning(eventCamListChanged) //funcion para ver a que distancia está
                     //TODO: ver a que velocidad va acercandose
                 }
             }
@@ -255,43 +255,24 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
                 mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
                 mostrarMensaje?.show()
                 estaMostrando = true
+
+                //MOSTRAR ALERTA EN LAS GAFAS
+                screenAlert = AlertScreen()
+                Evs.instance().screens().removeScreen(glassesScreen!!)
+                Evs.instance().screens().addScreen(screenAlert!!)
+
             }
         } else {
             if(estaMostrando) {
                 mostrarMensaje?.dismiss()
                 estaMostrando = false
+
+                //ELIMINAR ALERTA GAFAS
+                Evs.instance().screens().removeScreen(screenAlert!!)
+                Evs.instance().screens().addScreen(glassesScreen!!)
             }
         }
     }
-    /*private fun compararPosiciones(eventCamListChanged: EventCamListChanged) {
-        val camRecords = eventCamListChanged.list
-        val myRecord = camRecords.firstOrNull { it.stationID == V2XSDK.getInstance().sdkConfiguration.stationID}
-        var atLeastOneNear = false;
-
-        if (myRecord != null) {
-            for (record in camRecords) {
-                if (record != myRecord) {
-                    if (service.estanCerca(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude)) {
-                        atLeastOneNear = true
-                    }
-                }
-            }
-            if(atLeastOneNear) {
-                if(!estaMostrando){
-                    val rootView = findViewById<View>(android.R.id.content)
-                    mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
-                    mostrarMensaje?.show()
-                    estaMostrando = true
-                }
-            } else {
-                if(estaMostrando) {
-                    mostrarMensaje?.dismiss()
-                    estaMostrando = false
-                }
-            }
-        }
-    }*/
-
 
     private fun onCamListChanged(eventCamListChanged: EventCamListChanged) {
         if (mGoogleMap != null) {
@@ -339,7 +320,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             val bearing = if (location.bearingInDegree != null) location.bearingInDegree else 0.0f
             mITSMarker!!.isVisible = true
             val itsLatLng = LatLng(location.latitude, location.longitude)
-            //LatLng centerLatLng = new LatLng(40.333333, -4.187500);
             mITSMarker!!.position = itsLatLng
             mITSMarker!!.rotation = bearing
             val cameraPosition = CameraPosition.Builder()
@@ -440,6 +420,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         }
         return permissionsToRequest
     }
+
 
     override fun onConnected() {
         runOnUiThread{txtStatus.text = "${Evs.instance().comm().getDeviceName()} is Connected"}
