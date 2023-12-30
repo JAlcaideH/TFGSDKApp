@@ -338,7 +338,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         val blueArrowBmpDesc = createBitmapDescriptorFromResource(this, R.drawable._334653)
         mITSMarker = createMarker(blueArrowBmpDesc)
         mCAMMarkers = ArrayList()
-        val redArrowBmpDesc = createBitmapDescriptorFromResource(this, R.drawable.pointlocation)
+        val redArrowBmpDesc = createBitmapDescriptorFromResource(this, R.drawable.othervehicle)
         for (i in 0..49) {
             mCAMMarkers!!.add(createMarker(redArrowBmpDesc))
         }
