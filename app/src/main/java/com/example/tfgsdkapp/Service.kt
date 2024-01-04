@@ -37,22 +37,24 @@ class Service {
     }
 
 
-    fun compararPosiciones(eventCamListChanged: EventCamListChanged) : Boolean {
+    fun compararPosiciones(eventCamListChanged: EventCamListChanged) : Int {
         val camRecords = eventCamListChanged.list
         val myRecord =
             camRecords.firstOrNull { it.stationID == V2XSDK.getInstance().sdkConfiguration.stationID }
-        var atLeastOneNear = false;
+        var atLeastOneNear = 0;
 
         if (myRecord != null) {
             for (record in camRecords) {
                 if (record != myRecord) {
                     if(compareVelocity(myRecord.speedInKmH,record.speedInKmH)) {
-                        if (compararAngulo(myRecord.headingInDegree,record.headingInDegree)) {
+                        val direccion = compararAnguloDir(myRecord.headingInDegree,record.headingInDegree)
+                        if (direccion != 0) {
                             if (estanCerca(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude)) {
+                                //atLeastOneNear = direccion
                                 if(calcularDistanciaCarretera(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 50) {
                                     println("Velocidad actual: ${record.speedInKmH}")
                                     println("Distancia en carretera: ${calcularDistanciaCarretera(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude)}")
-                                    atLeastOneNear = true
+                                    atLeastOneNear = direccion
                                 }
                             }
                         }
@@ -69,7 +71,28 @@ class Service {
         println("angulo actual: ${diffNormalized}")
         return diffNormalized in -100f..100f
     }
+    private fun compararAnguloDir(myAngulo: Float, otroAngulo: Float) : Int {
+        var diff = otroAngulo - myAngulo
+        if (diff < 0) {
+            diff += 360
+        }
+        return if(diff <= 45) {
+            1 // incide desde atras
+        } else if (diff <= 135) {
+            2 //incide desde izquierda
+        } else if (diff <= 225) {
+            0 //incide desde alante, se puede cerrar mas el angulo desde atras para abrir los laterales
+        } else if (diff <= 315) {
+            3 //incide desde derecha
+        } else if (diff <= 360) {
+            1 //incide desde atras
+        } else {
+            0
+        }
+    }
 
+
+    //Distancia desde el punto externo hasta mi posicion, por carretera
     private fun calcularDistanciaCarretera(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
         val apiKey = "AIzaSyAP8GhkfWaCV2XWWt5sXGWzzlT5fx1uIHM"
         val context = GeoApiContext.Builder()
@@ -78,8 +101,8 @@ class Service {
 
         val directionsResult = DirectionsApi.newRequest(context)
             .mode(TravelMode.DRIVING)
-            .origin("$lat1,$lon1")
-            .destination("$lat2,$lon2")
+            .origin("$lat2,$lon2")
+            .destination("$lat1,$lon1")
             .await()
 
         val distanciaEnCarretera = directionsResult.routes[0].legs[0].distance.inMeters.toFloat()

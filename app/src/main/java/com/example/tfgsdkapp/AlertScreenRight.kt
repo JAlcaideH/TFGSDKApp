@@ -11,7 +11,7 @@ import UIKit.widgets.Image
 import UIKit.widgets.Text
 
 
-class AlertScreen: Screen() {
+class AlertScreenRight: Screen() {
     private val text2 = Text()
 
     override fun onCreate() {
@@ -20,14 +20,15 @@ class AlertScreen: Screen() {
 
         val arrow = Arrow()
         arrow
-            .setDirection(Direction.down)
+            .setDirection(Direction.up)
             .setArrowHeadInfo(20f)
             .setArrowBodyInfo(44f,100f)
             .setFillColor(EvsColor.Green)
             .setForegroundColor(EvsColor.Green)
             .setPenThickness(3)
             .setHeight(70f).setWidth(50f)
-            .setX(130f).setY(150f)
+            .setX(340f).setY(150f)
+            .rotate(90f)
         add(arrow)
 
         val alert = Image().setResource(alertSrc).setX(getHeight()/2).setY(getWidth()/4)

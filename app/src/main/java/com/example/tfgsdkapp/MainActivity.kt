@@ -69,6 +69,8 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     //GLASSES
     private val screen = GlassesScreen()
     private var screenAlert : AlertScreen? = null
+    private var screenAlertLeft : AlertScreenLeft? = null
+    private var screenAlertRight : AlertScreenRight? = null
 
 
     //Objeto que mantiene los elementos UI y provee acceso a ellos
@@ -249,7 +251,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
 
     private fun showWarning(eventCamListChanged: EventCamListChanged) {
         var atLeastOneNear = service.compararPosiciones(eventCamListChanged)
-        if(atLeastOneNear) {
+        if(atLeastOneNear != 0) {
             if(!estaMostrando){
                 val rootView = findViewById<View>(android.R.id.content)
                 mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
@@ -258,9 +260,16 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
 
                 //MOSTRAR ALERTA EN LAS GAFAS
                 screenAlert = AlertScreen()
+                screenAlertLeft = AlertScreenLeft()
+                screenAlertRight = AlertScreenRight()
                 Evs.instance().screens().removeScreen(glassesScreen!!)
-                Evs.instance().screens().addScreen(screenAlert!!)
-
+                if(atLeastOneNear == 1) {
+                    Evs.instance().screens().addScreen(screenAlert!!)
+                } else if(atLeastOneNear == 2) {
+                    Evs.instance().screens().addScreen(screenAlertLeft!!)
+                } else if(atLeastOneNear == 3) {
+                    Evs.instance().screens().addScreen(screenAlertRight!!)
+                }
             }
         } else {
             if(estaMostrando) {
@@ -269,6 +278,8 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
 
                 //ELIMINAR ALERTA GAFAS
                 Evs.instance().screens().removeScreen(screenAlert!!)
+                Evs.instance().screens().removeScreen(screenAlertLeft!!)
+                Evs.instance().screens().removeScreen(screenAlertRight!!)
                 Evs.instance().screens().addScreen(glassesScreen!!)
             }
         }
