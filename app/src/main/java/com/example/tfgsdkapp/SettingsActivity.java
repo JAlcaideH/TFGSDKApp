@@ -67,10 +67,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
         int preSavedStationTypePosition = stationTypeSpinnerAdapter.getPosition(preSavedStationType);
         binding.spStationType.post(() -> binding.spStationType.setSelection(preSavedStationTypePosition));
-
-        //binding.tvApplicationIDValue.setText(parameters.getApplicationID());
-
-        //binding.tvApplicationTokenValue.setText(parameters.getApplicationToken());
     }
 
     private void setupButtons() {
