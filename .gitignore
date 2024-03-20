@@ -15,8 +15,8 @@
 /.gradle/7.2/fileHashes/resourceHashesCache.bin
 /.gradle/checksums/sha1-checksums.bin
 local.properties
-misc.xml
 gradle.xml
 gradle.properties
 sdk.key
 secrets.properties
+.idea
