@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TFGSDKApp</string>
+    <string name="app_name">SafeCycle</string>
     //Main activity
     <string name="status">Status</string>
 
