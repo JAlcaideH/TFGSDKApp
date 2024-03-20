@@ -50,6 +50,7 @@ import com.vodafone.v2x.sdk.android.facade.exception.InvalidConfigException
 import com.vodafone.v2x.sdk.android.facade.models.GpsLocation
 import com.vodafone.v2x.sdk.android.facade.records.cam.CAMRecord
 
+
 class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEvsCommunicationEvents, IEvsAppEvents {
     private var mHasPermission = false
     private var mIsInitDone = false
@@ -58,7 +59,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     private var mCAMMarkers: ArrayList<Marker?>? = null
     private var sdkConfig: SDKConfiguration? = null
     private lateinit var txtStatus: TextView
-    private val glassesScreen = GlassesScreen()
     lateinit var lastLocation: GpsLocation
     var myStationType: Int = 0
     var lastCamList: List<CAMRecord>? = null
@@ -67,10 +67,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     val service = Service()
 
     //GLASSES
-    private val screen = GlassesScreen()
     private var screenAlert : AlertScreen? = null
-    private var screenAlertLeft : AlertScreenLeft? = null
-    private var screenAlertRight : AlertScreenRight? = null
 
 
     //Objeto que mantiene los elementos UI y provee acceso a ellos
@@ -89,7 +86,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             cfg.withCamServiceMode(ServiceMode.TxAndRx)
             cfg.withCAMPublishGroup("510482_1")
             cfg.withCAMSubscribeGroup("510482_1")
-            //"v2x/cam/510482_1/g8/+/+/+/+/#" esto lo he cambiado para ver si funciona.
             sdkConfig = cfg.build()
             V2XSDK.getInstance().initV2XService(this.applicationContext, sdkConfig)
             mIsInitDone = true
@@ -128,7 +124,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view: View = binding!!.root
         setContentView(view)
-        //setContentView(R.layout.activity_main);
         val hasPermission = checkLocationPermission()
         if (hasPermission) {
             initV2XService()
@@ -145,12 +140,12 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         //NUEVO CODIGO PARA CONECTAR LAS GAFAS:
         val options = hashSetOf("supportSimulator")
         Evs.init(this).startExt(options)
-        Evs.instance().comm().setDeviceInfo("udp://192.168.1.146:9321","Simulator")
+        Evs.instance().comm().setDeviceInfo("udp://192.168.1.147:9321","Simulator")
 
         checkPerm()
         initSdk()
 
-        Evs.instance().screens().addScreen(screen)
+        //Evs.instance().screens().addScreen(screen)
     }
 
     fun checkLocationPermission(): Boolean {
@@ -257,32 +252,20 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
                 mostrarMensaje = Snackbar.make(rootView, "Vehiculo cercano", Snackbar.LENGTH_INDEFINITE)
                 mostrarMensaje?.show()
                 estaMostrando = true
-
                 //MOSTRAR ALERTA EN LAS GAFAS
                 screenAlert = AlertScreen()
-                screenAlertLeft = AlertScreenLeft()
-                screenAlertRight = AlertScreenRight()
-                Evs.instance().screens().removeScreen(glassesScreen!!)
-                if(atLeastOneNear == 1) {
-                    Evs.instance().screens().addScreen(screenAlert!!)
-                } else if(atLeastOneNear == 2) {
-                    Evs.instance().screens().addScreen(screenAlertLeft!!)
-                } else if(atLeastOneNear == 3) {
-                    Evs.instance().screens().addScreen(screenAlertRight!!)
-                }
+                screenAlert?.actualizarValor(atLeastOneNear)
+                Evs.instance().screens().addScreen(screenAlert!!)
             }
         } else {
             if(estaMostrando) {
                 mostrarMensaje?.dismiss()
                 estaMostrando = false
-
                 //ELIMINAR ALERTA GAFAS
                 Evs.instance().screens().removeScreen(screenAlert!!)
-                Evs.instance().screens().removeScreen(screenAlertLeft!!)
-                Evs.instance().screens().removeScreen(screenAlertRight!!)
-                Evs.instance().screens().addScreen(glassesScreen!!)
             }
         }
+
     }
 
     private fun onCamListChanged(eventCamListChanged: EventCamListChanged) {
@@ -358,7 +341,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     private fun updateITSLabel(location: GpsLocation) {
         runOnUiThread {
             val newLabelContent = "(" + location.latitude + ", " + location.longitude + ")"
-            //mItsTextView.setText(newLabelContent);
         }
     }
 
