@@ -19,3 +19,4 @@ misc.xml
 gradle.xml
 gradle.properties
 sdk.key
+secrets.properties
