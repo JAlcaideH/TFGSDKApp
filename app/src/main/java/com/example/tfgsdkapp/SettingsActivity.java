@@ -2,19 +2,19 @@ package com.example.tfgsdkapp;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tfgsdkapp.databinding.ActivitySettingsBinding;
+import com.example.tfgsdkapp.utils.AppPreferences;
 import com.example.tfgsdkapp.utils.JavaMapUtils;
 import com.example.tfgsdkapp.utils.Parameters;
-import com.jakewharton.processphoenix.ProcessPhoenix;
 import com.vodafone.v2x.sdk.android.facade.enums.StationType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 
 public class SettingsActivity extends AppCompatActivity {
@@ -24,6 +24,11 @@ public class SettingsActivity extends AppCompatActivity {
     private ArrayAdapter<String> stationTypeSpinnerAdapter;
     private String preSavedStationType;
 
+    public EditText editText;
+
+    private String apiKey;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +36,6 @@ public class SettingsActivity extends AppCompatActivity {
         parameters = Parameters.getInstance(this);
         setContentView(binding.getRoot());
         initTypeMap();
-        setupStationTypeSpinner();
         setupPreloadedValues();
         setupButtons();
     }
@@ -54,34 +58,26 @@ public class SettingsActivity extends AppCompatActivity {
         stationTypeMap.put(getString(R.string.unknown), StationType.UNKNOWN);
     }
 
-    private void setupStationTypeSpinner() {
-        stationTypeSpinnerAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, new ArrayList<>(stationTypeMap.keySet()));
-        binding.spStationType.setAdapter(stationTypeSpinnerAdapter);
-    }
-
     private void setupPreloadedValues() {
         StationType stationType = parameters.getStationType();
         preSavedStationType = JavaMapUtils.getKeyByValue(stationTypeMap, stationType);
         if (preSavedStationType == null) {
-            preSavedStationType = getString(R.string.passenger_car);
+            preSavedStationType = getString(R.string.cyclist);
         }
-        int preSavedStationTypePosition = stationTypeSpinnerAdapter.getPosition(preSavedStationType);
-        binding.spStationType.post(() -> binding.spStationType.setSelection(preSavedStationTypePosition));
+    }
+
+    public String getApiKey() {
+        return apiKey;
     }
 
     private void setupButtons() {
         binding.btCancel.setOnClickListener(v -> SettingsActivity.this.finish());
 
         binding.btApply.setOnClickListener(v -> {
-            String inputStationType = binding.spStationType.getSelectedItem().toString().trim();
-            if (!preSavedStationType.equals(inputStationType)) {
-                boolean isStationTypeSet = parameters.setStationType(Objects.requireNonNull(stationTypeMap.get(inputStationType)));
-                if (isStationTypeSet) {
-                    ProcessPhoenix.triggerRebirth(SettingsActivity.this);
-                }
-            } else {
-                finish();
-            }
+            editText = findViewById(R.id.editText);
+            apiKey = editText.getText().toString();
+            AppPreferences.INSTANCE.setApiKeyMapBox(apiKey);
+            SettingsActivity.this.finish();
         });
 
     }

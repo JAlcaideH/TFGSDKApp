@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.everysight.evskit.android.Evs
 import com.example.tfgsdkapp.databinding.ActivityMainBinding
+import com.example.tfgsdkapp.utils.AppPreferences
 import com.example.tfgsdkapp.utils.Parameters
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -59,16 +60,13 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     private var mCAMMarkers: ArrayList<Marker?>? = null
     private var sdkConfig: SDKConfiguration? = null
     private lateinit var txtStatus: TextView
-    lateinit var lastLocation: GpsLocation
     var myStationType: Int = 0
-    var lastCamList: List<CAMRecord>? = null
     var estaMostrando = false
     var mostrarMensaje: Snackbar? = null //Para mostrar la alerta de vehiculo cercano
     val service = Service()
 
     //GLASSES
     private var screenAlert : AlertScreen? = null
-
 
     //Objeto que mantiene los elementos UI y provee acceso a ellos
     private var binding: ActivityMainBinding? = null
@@ -81,7 +79,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
                 .withMqttClientKind(mqttClient)
             cfg.withMqttUsername("0069d2b0-6bae-479c-ac3f-633d534f96b2")
             cfg.withMqttPassword("9842b50e-f39c-4d8a-9ef6-2f8a8e59e1d7")
-            cfg.withStationType(parameters?.stationType ?: StationType.CYCLIST)
+            cfg.withStationType(StationType.CYCLIST)
             cfg.withCAMServiceEnabled(true)
             cfg.withCamServiceMode(ServiceMode.TxAndRx)
             cfg.withCAMPublishGroup("510482_1")
@@ -142,10 +140,13 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         Evs.init(this).startExt(options)
         Evs.instance().comm().setDeviceInfo("udp://192.168.1.147:9321","Simulator")
 
+        AppPreferences.setup(applicationContext)
         checkPerm()
         initSdk()
 
-        //Evs.instance().screens().addScreen(screen)
+        //screen = GlassesScreen()
+
+        //Evs.instance().screens().addScreen(screen!!)
     }
 
     fun checkLocationPermission(): Boolean {
@@ -183,6 +184,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             true
         }
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

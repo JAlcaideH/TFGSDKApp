@@ -1,23 +1,22 @@
 package com.example.tfgsdkapp
 
-import com.vodafone.v2x.sdk.android.facade.V2XSDK
-import com.vodafone.v2x.sdk.android.facade.events.EventCamListChanged
-import kotlin.math.pow
-import com.google.maps.GeoApiContext
+import com.example.tfgsdkapp.utils.AppPreferences
 import com.google.maps.DirectionsApi
+import com.google.maps.GeoApiContext
 import com.google.maps.model.TravelMode
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.MapboxDirections
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.geojson.Point
 import com.vodafone.v2x.sdk.android.core.messages.cpm_pdu_descriptions.CpmManagementContainer._stationType
+import com.vodafone.v2x.sdk.android.facade.V2XSDK
+import com.vodafone.v2x.sdk.android.facade.events.EventCamListChanged
 import retrofit2.Response
-import java.util.Properties
+import kotlin.math.pow
 
 class Service {
 
     private var contador = 0
-
     private fun calcularDistancia(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Double {
         val radioTierra = 6371e3 // Radio de la Tierra en metros
         val radLat1 = lat1 * Math.PI / 180 // Convertir grados a radianes
@@ -89,15 +88,10 @@ class Service {
                         val direccion = compararAnguloDir(myRecord.headingInDegree,record.headingInDegree)
                         if (direccion != 0) {
                             if (estanCerca(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude,record.stationID)) {
-                                /*if(calcularDistanciaCarretera(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 50) {
-                                    println("Velocidad actual: ${record.speedInKmH}")
-                                    atLeastOneNear = direccion
-                                }*/
+
                                 if(calculateDistanceMapBox(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 120) {
-                                    println("Velocidad actual: ${record.speedInKmH}")
                                     atLeastOneNear = direccion
                                 }
-                                //atLeastOneNear = direccion
                                 val endTime = System.currentTimeMillis()
                                 val elapsedTime = endTime - startTime
                                 println("El proceso tardó $elapsedTime milisegundos.")
@@ -132,14 +126,24 @@ class Service {
         }
     }
 
+    fun getApiKey(): String? {
+        val apiKeyMapBox: String? = AppPreferences.apiKeyMapBox
+
+        return apiKeyMapBox
+    }
     private fun calculateDistanceMapBox(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
 
         var responseDist: Float = 0F
+        var apiKey = getApiKey()
+        if (apiKey == null)
+        {
+            return 1000F
+        }
         val client = MapboxDirections.builder()
             .origin(Point.fromLngLat(lon2.toDouble(),lat2.toDouble()))
             .destination(Point.fromLngLat(lon1.toDouble(),lat1.toDouble()))
             .profile(DirectionsCriteria.PROFILE_DRIVING)
-            .accessToken(BuildConfig.apikeyMapBox)
+            .accessToken(apiKey)
             .build()
 
         val response: Response<DirectionsResponse> = client.executeCall()
@@ -150,23 +154,5 @@ class Service {
         } else {
             1000F
         }
-    }
-
-    private fun calcularDistanciaCarretera(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
-
-        val context = GeoApiContext.Builder()
-            .apiKey(BuildConfig.apikeyGoogle)
-            .build()
-
-        val directionsResult = DirectionsApi.newRequest(context)
-            .mode(TravelMode.DRIVING)
-            .origin("$lat2,$lon2")
-            .destination("$lat1,$lon1")
-            .await()
-
-        val distanciaEnCarretera = directionsResult.routes[0].legs[0].distance.inMeters.toFloat()
-
-        println("Distanc actual GoogleMaps: ${distanciaEnCarretera}")
-        return distanciaEnCarretera
     }
 }
