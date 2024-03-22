@@ -2,9 +2,6 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android' version '1.8.22'
 }
-def apikeyPropertiesFile = rootProject.file("secrets.properties");
-def apikeyProperties = new Properties()
-apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
 android {
     compileSdk 34
@@ -17,8 +14,6 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "apikeyGoogle", apikeyProperties['google_token'])
-        buildConfigField("String", "apikeyMapBox", apikeyProperties['mapbox_token'])
     }
 
     buildTypes {
