@@ -38,20 +38,20 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void initTypeMap() {
         stationTypeMap = new HashMap<>();
-        stationTypeMap.put(getString(R.string.pedestrian), StationType.PEDESTRIAN);
-        stationTypeMap.put(getString(R.string.cyclist), StationType.CYCLIST);
-        stationTypeMap.put(getString(R.string.moped), StationType.MOPED);
-        stationTypeMap.put(getString(R.string.motorcycle), StationType.MOTORCYCLE);
-        stationTypeMap.put(getString(R.string.passenger_car), StationType.PASSENGER_CAR);
-        stationTypeMap.put(getString(R.string.bus), StationType.BUS);
-        stationTypeMap.put(getString(R.string.light_truck), StationType.LIGHT_TRUCK);
-        stationTypeMap.put(getString(R.string.heavy_truck), StationType.HEAVY_TRUCK);
-        stationTypeMap.put(getString(R.string.trailer), StationType.TRAILER);
-        stationTypeMap.put(getString(R.string.special_vehicles), StationType.SPECIAL_VEHICLES);
-        stationTypeMap.put(getString(R.string.tram), StationType.TRAM);
-        stationTypeMap.put(getString(R.string.road_side_units), StationType.ROAD_SIDE_UNITS);
-        stationTypeMap.put(getString(R.string.animal), StationType.ANIMAL);
-        stationTypeMap.put(getString(R.string.unknown), StationType.UNKNOWN);
+        stationTypeMap.put("Peatón", StationType.PEDESTRIAN);
+        stationTypeMap.put("Ciclista", StationType.CYCLIST);
+        stationTypeMap.put("Ciclomotor", StationType.MOPED);
+        stationTypeMap.put("Motocicleta", StationType.MOTORCYCLE);
+        stationTypeMap.put("Coche", StationType.PASSENGER_CAR);
+        stationTypeMap.put("Autobús", StationType.BUS);
+        stationTypeMap.put("Camión ligero", StationType.LIGHT_TRUCK);
+        stationTypeMap.put("Camión pesado", StationType.HEAVY_TRUCK);
+        stationTypeMap.put("Camión tráiler", StationType.TRAILER);
+        stationTypeMap.put("Vehiculos especiales", StationType.SPECIAL_VEHICLES);
+        stationTypeMap.put("Tranvía", StationType.TRAM);
+        stationTypeMap.put("Sistema RSU", StationType.ROAD_SIDE_UNITS);
+        stationTypeMap.put("Animal", StationType.ANIMAL);
+        stationTypeMap.put("Desconocido", StationType.UNKNOWN);
     }
 
     private void setupStationTypeSpinner() {
