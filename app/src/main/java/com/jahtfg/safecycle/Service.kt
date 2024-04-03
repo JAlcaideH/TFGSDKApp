@@ -1,4 +1,4 @@
-package com.example.tfgsdkapp
+package com.jahtfg.safecycle
 
 import com.vodafone.v2x.sdk.android.facade.V2XSDK
 import com.vodafone.v2x.sdk.android.facade.events.EventCamListChanged
@@ -12,7 +12,6 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.mapbox.geojson.Point
 import com.vodafone.v2x.sdk.android.core.messages.cpm_pdu_descriptions.CpmManagementContainer._stationType
 import retrofit2.Response
-import java.util.Properties
 
 class Service {
 

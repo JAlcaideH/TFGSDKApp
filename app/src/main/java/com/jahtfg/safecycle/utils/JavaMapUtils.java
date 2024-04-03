@@ -1,4 +1,4 @@
-package com.example.tfgsdkapp.utils;
+package com.jahtfg.safecycle.utils;
 
 import java.util.Map;
 import java.util.Objects;

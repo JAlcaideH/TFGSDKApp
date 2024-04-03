@@ -1,13 +1,13 @@
-package com.example.tfgsdkapp;
+package com.jahtfg.safecycle;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.tfgsdkapp.databinding.ActivitySettingsBinding;
-import com.example.tfgsdkapp.utils.JavaMapUtils;
-import com.example.tfgsdkapp.utils.Parameters;
+import com.jahtfg.safecycle.databinding.ActivitySettingsBinding;
+import com.jahtfg.safecycle.utils.JavaMapUtils;
+import com.jahtfg.safecycle.utils.Parameters;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 import com.vodafone.v2x.sdk.android.facade.enums.StationType;
 

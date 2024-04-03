@@ -1,4 +1,4 @@
-package com.example.tfgsdkapp
+package com.jahtfg.safecycle
 
 import UIKit.services.AppErrorCode
 import UIKit.services.IEvsAppEvents
@@ -20,8 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.everysight.evskit.android.Evs
-import com.example.tfgsdkapp.databinding.ActivityMainBinding
-import com.example.tfgsdkapp.utils.Parameters
+import com.jahtfg.safecycle.utils.Parameters
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -33,6 +32,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
+import com.jahtfg.safecycle.databinding.ActivityMainBinding
 import com.vodafone.v2x.sdk.android.core.messages.cpm_pdu_descriptions.CpmManagementContainer._stationType
 import com.vodafone.v2x.sdk.android.facade.SDKConfiguration
 import com.vodafone.v2x.sdk.android.facade.SDKConfiguration.SDKConfigurationBuilder
@@ -398,7 +398,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         permissionsRequested = validatePermissions(permissionsRequested)
         if (permissionsRequested.size > 0) {
 
-            Log.d(MainActivity.TAG,"validating permissions")
+            Log.d(TAG,"validating permissions")
             val req = permissionsRequested.toTypedArray()
             requestPermissions(req, 666)
         }

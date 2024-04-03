@@ -1,17 +1,15 @@
-package com.example.tfgsdkapp
+package com.jahtfg.safecycle
 
 import UIKit.app.Screen
-import UIKit.app.data.Align
 import UIKit.app.data.Direction
 import UIKit.app.data.EvsColor
-import UIKit.app.resources.Font
 import UIKit.app.resources.ImgSrc
 import UIKit.widgets.Arrow
 import UIKit.widgets.Image
 import UIKit.widgets.Text
 
 
-class AlertScreenLeft: Screen() {
+class AlertScreenRight: Screen() {
     private val text2 = Text()
 
     override fun onCreate() {
@@ -27,8 +25,8 @@ class AlertScreenLeft: Screen() {
             .setForegroundColor(EvsColor.Green)
             .setPenThickness(3)
             .setHeight(70f).setWidth(50f)
-            .setX(130f).setY(150f)
-        arrow.rotate(270f)
+            .setX(340f).setY(150f)
+            .rotate(90f)
         add(arrow)
 
         val alert = Image().setResource(alertSrc).setX(getHeight()/2).setY(getWidth()/4)

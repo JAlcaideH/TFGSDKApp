@@ -1,4 +1,4 @@
-package com.example.tfgsdkapp
+package com.jahtfg.safecycle
 
 import UIKit.app.Screen
 import UIKit.app.data.Align

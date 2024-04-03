@@ -1,5 +1,5 @@
 @file:JvmName("MainActivityGlasses")
-package com.example.tfgsdkapp
+package com.jahtfg.safecycle
 
 import UIKit.services.AppErrorCode
 import UIKit.services.IEvsAppEvents
@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.TextView
 import com.everysight.evskit.android.Evs
 class MainActivityGlasses : Activity(), IEvsCommunicationEvents, IEvsAppEvents {
