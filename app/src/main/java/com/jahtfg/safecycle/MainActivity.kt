@@ -59,9 +59,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
     private var mCAMMarkers: ArrayList<Marker?>? = null
     private var sdkConfig: SDKConfiguration? = null
     private lateinit var txtStatus: TextView
-    lateinit var lastLocation: GpsLocation
     var myStationType: Int = 0
-    var lastCamList: List<CAMRecord>? = null
     var estaMostrando = false
     var mostrarMensaje: Snackbar? = null //Para mostrar la alerta de vehiculo cercano
     val service = Service()
@@ -230,8 +228,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             runOnUiThread { onCamListChanged(eventCamListChanged) }
             if(eventCamListChanged.list.size > 1 ){
                 if(myStationType == _stationType.cyclist) {
-                    showWarning(eventCamListChanged) //funcion para ver a que distancia está
-                    //TODO: ver a que velocidad va acercandose
+                    showWarning(eventCamListChanged)
                 }
             }
         } else if (baseEvent.eventType == EventType.V2X_CONNECTIVITY_STATE_CHANGED) {
@@ -299,7 +296,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         }
     }
 
-    //TO GET THE STATION TYPE CYCLIST, CAR...
     private fun fromValue(value: Int): StationType {
         for (type in StationType.values()) {
             if (type.value == value) {
@@ -338,11 +334,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         }
     }
 
-    private fun updateITSLabel(location: GpsLocation) {
-        runOnUiThread {
-            val newLabelContent = "(" + location.latitude + ", " + location.longitude + ")"
-        }
-    }
 
     private fun createMarker(icon: BitmapDescriptor): Marker? {
         val option = MarkerOptions()

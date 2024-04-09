@@ -52,7 +52,6 @@ class Service {
         if ((listaDistancias.size == 2) && (!(listaDistancias.get(0).station == listaDistancias.get(1).station) || !(listaDistancias.get(0).dist > listaDistancias.get(1).dist)) ) {
             return false
         }
-        println("Distancia actual: $distancia")
         return true
     }
 
@@ -72,7 +71,6 @@ class Service {
     val listaDistancias = mutableListOf<stationConDist>()
 
     fun compararPosiciones(eventCamListChanged: EventCamListChanged) : Int {
-        val startTime = System.currentTimeMillis()
         val camRecords = eventCamListChanged.list
         val myRecord =
             camRecords.firstOrNull { it.stationID == V2XSDK.getInstance().sdkConfiguration.stationID }
@@ -88,18 +86,14 @@ class Service {
                         val direccion = compararAnguloDir(myRecord.headingInDegree,record.headingInDegree)
                         if (direccion != 0) {
                             if (estanCerca(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude,record.stationID)) {
-                                /*if(calcularDistanciaCarretera(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 50) {
-                                    println("Velocidad actual: ${record.speedInKmH}")
-                                    atLeastOneNear = direccion
-                                }*/
-                                if(calculateDistanceMapBox(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 120) {
-                                    println("Velocidad actual: ${record.speedInKmH}")
+                                //Para usar la api de google
+                                //if(calcularDistanciaCarretera(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 120) {
+                                    //println("Velocidad actual: ${record.speedInKmH}")
+                                    //atLeastOneNear = direccion
+                                //}
+                                if(calcularDistanciaCarretera(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 120) {
                                     atLeastOneNear = direccion
                                 }
-                                //atLeastOneNear = direccion
-                                val endTime = System.currentTimeMillis()
-                                val elapsedTime = endTime - startTime
-                                println("El proceso tardó $elapsedTime milisegundos.")
                             } else {
                                 continue
                             }
@@ -121,7 +115,7 @@ class Service {
         } else if (diff <= 135) {
             2 //incide desde izquierda
         } else if (diff <= 225) {
-            0 //incide desde alante, se puede cerrar mas el angulo desde atras para abrir los laterales
+            0 //incide desde alante, se puede cerrar mas el angulo desde atras para abrir el angulo de los laterales
         } else if (diff <= 315) {
             3 //incide desde derecha
         } else if (diff <= 360) {
@@ -131,7 +125,8 @@ class Service {
         }
     }
 
-    private fun calculateDistanceMapBox(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
+    //Calculo distancia carretera con MapBox
+    private fun calcularDistanciaCarretera(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
 
         var responseDist: Float = 0F
         val client = MapboxDirections.builder()
@@ -144,14 +139,14 @@ class Service {
         val response: Response<DirectionsResponse> = client.executeCall()
         return if(response != null) {
             responseDist = response.body()?.routes()?.firstOrNull()?.distance()?.toFloat() ?: 1000F
-            println("Distanc actual MapBox: ${responseDist}")
+            //println("Distanc actual MapBox: ${responseDist}")
             responseDist
         } else {
             1000F
         }
     }
 
-    private fun calcularDistanciaCarretera(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
+    private fun calcularDistanciaCarreteraGoogle(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
 
         val context = GeoApiContext.Builder()
             .apiKey(BuildConfig.apikeyGoogle)
@@ -165,7 +160,7 @@ class Service {
 
         val distanciaEnCarretera = directionsResult.routes[0].legs[0].distance.inMeters.toFloat()
 
-        println("Distanc actual GoogleMaps: ${distanciaEnCarretera}")
+        //println("Distanc actual GoogleMaps: ${distanciaEnCarretera}")
         return distanciaEnCarretera
     }
 }
