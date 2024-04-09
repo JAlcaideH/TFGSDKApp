@@ -1,9 +1,6 @@
-package com.example.tfgsdkapp
+package com.jahtfg.safecycle
 
-import com.example.tfgsdkapp.utils.AppPreferences
-import com.google.maps.DirectionsApi
-import com.google.maps.GeoApiContext
-import com.google.maps.model.TravelMode
+import com.jahtfg.safecycle.utils.AppPreferences
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.MapboxDirections
 import com.mapbox.api.directions.v5.models.DirectionsResponse
@@ -17,6 +14,7 @@ import kotlin.math.pow
 class Service {
 
     private var contador = 0
+
     private fun calcularDistancia(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Double {
         val radioTierra = 6371e3 // Radio de la Tierra en metros
         val radLat1 = lat1 * Math.PI / 180 // Convertir grados a radianes
@@ -52,7 +50,6 @@ class Service {
         if ((listaDistancias.size == 2) && (!(listaDistancias.get(0).station == listaDistancias.get(1).station) || !(listaDistancias.get(0).dist > listaDistancias.get(1).dist)) ) {
             return false
         }
-        println("Distancia actual: $distancia")
         return true
     }
 
@@ -72,7 +69,6 @@ class Service {
     val listaDistancias = mutableListOf<stationConDist>()
 
     fun compararPosiciones(eventCamListChanged: EventCamListChanged) : Int {
-        val startTime = System.currentTimeMillis()
         val camRecords = eventCamListChanged.list
         val myRecord =
             camRecords.firstOrNull { it.stationID == V2XSDK.getInstance().sdkConfiguration.stationID }
@@ -89,12 +85,9 @@ class Service {
                         if (direccion != 0) {
                             if (estanCerca(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude,record.stationID)) {
 
-                                if(calculateDistanceMapBox(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 120) {
+                                if(calcularDistanciaCarretera(myRecord.latitude, myRecord.longitude, record.latitude, record.longitude) < 120) {
                                     atLeastOneNear = direccion
                                 }
-                                val endTime = System.currentTimeMillis()
-                                val elapsedTime = endTime - startTime
-                                println("El proceso tardó $elapsedTime milisegundos.")
                             } else {
                                 continue
                             }
@@ -116,7 +109,7 @@ class Service {
         } else if (diff <= 135) {
             2 //incide desde izquierda
         } else if (diff <= 225) {
-            0 //incide desde alante, se puede cerrar mas el angulo desde atras para abrir los laterales
+            0 //incide desde alante, se puede cerrar mas el angulo desde atras para abrir el angulo de los laterales
         } else if (diff <= 315) {
             3 //incide desde derecha
         } else if (diff <= 360) {
@@ -131,7 +124,8 @@ class Service {
 
         return apiKeyMapBox
     }
-    private fun calculateDistanceMapBox(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
+
+    private fun calcularDistanciaCarretera(lat1: Float, lon1: Float, lat2: Float, lon2: Float): Float {
 
         var responseDist: Float = 0F
         var apiKey = getApiKey()
@@ -149,7 +143,7 @@ class Service {
         val response: Response<DirectionsResponse> = client.executeCall()
         return if(response != null) {
             responseDist = response.body()?.routes()?.firstOrNull()?.distance()?.toFloat() ?: 1000F
-            println("Distanc actual MapBox: ${responseDist}")
+            //println("Distanc actual MapBox: ${responseDist}")
             responseDist
         } else {
             1000F

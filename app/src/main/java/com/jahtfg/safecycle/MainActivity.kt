@@ -1,4 +1,4 @@
-package com.example.tfgsdkapp
+package com.jahtfg.safecycle
 
 import UIKit.services.AppErrorCode
 import UIKit.services.IEvsAppEvents
@@ -20,9 +20,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.everysight.evskit.android.Evs
-import com.example.tfgsdkapp.databinding.ActivityMainBinding
-import com.example.tfgsdkapp.utils.AppPreferences
-import com.example.tfgsdkapp.utils.Parameters
+import com.jahtfg.safecycle.utils.Parameters
+import com.jahtfg.safecycle.databinding.ActivityMainBinding
+import com.jahtfg.safecycle.utils.AppPreferences
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -49,8 +49,6 @@ import com.vodafone.v2x.sdk.android.facade.events.EventType
 import com.vodafone.v2x.sdk.android.facade.events.EventV2XConnectivityStateChanged
 import com.vodafone.v2x.sdk.android.facade.exception.InvalidConfigException
 import com.vodafone.v2x.sdk.android.facade.models.GpsLocation
-import com.vodafone.v2x.sdk.android.facade.records.cam.CAMRecord
-
 
 class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEvsCommunicationEvents, IEvsAppEvents {
     private var mHasPermission = false
@@ -67,6 +65,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
 
     //GLASSES
     private var screenAlert : AlertScreen? = null
+
 
     //Objeto que mantiene los elementos UI y provee acceso a ellos
     private var binding: ActivityMainBinding? = null
@@ -144,9 +143,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         checkPerm()
         initSdk()
 
-        //screen = GlassesScreen()
-
-        //Evs.instance().screens().addScreen(screen!!)
+        //Evs.instance().screens().addScreen(screen)
     }
 
     fun checkLocationPermission(): Boolean {
@@ -184,7 +181,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             true
         }
     }
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -232,8 +228,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
             runOnUiThread { onCamListChanged(eventCamListChanged) }
             if(eventCamListChanged.list.size > 1 ){
                 if(myStationType == _stationType.cyclist) {
-                    showWarning(eventCamListChanged) //funcion para ver a que distancia está
-                    //TODO: ver a que velocidad va acercandose
+                    showWarning(eventCamListChanged)
                 }
             }
         } else if (baseEvent.eventType == EventType.V2X_CONNECTIVITY_STATE_CHANGED) {
@@ -301,7 +296,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         }
     }
 
-    //TO GET THE STATION TYPE CYCLIST, CAR...
     private fun fromValue(value: Int): StationType {
         for (type in StationType.values()) {
             if (type.value == value) {
@@ -340,11 +334,6 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         }
     }
 
-    private fun updateITSLabel(location: GpsLocation) {
-        runOnUiThread {
-            val newLabelContent = "(" + location.latitude + ", " + location.longitude + ")"
-        }
-    }
 
     private fun createMarker(icon: BitmapDescriptor): Marker? {
         val option = MarkerOptions()
@@ -400,7 +389,7 @@ class MainActivity : AppCompatActivity(), EventListener, OnMapReadyCallback, IEv
         permissionsRequested = validatePermissions(permissionsRequested)
         if (permissionsRequested.size > 0) {
 
-            Log.d(MainActivity.TAG,"validating permissions")
+            Log.d(TAG,"validating permissions")
             val req = permissionsRequested.toTypedArray()
             requestPermissions(req, 666)
         }

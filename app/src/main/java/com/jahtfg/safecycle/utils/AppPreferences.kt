@@ -1,4 +1,4 @@
-package com.example.tfgsdkapp.utils
+package com.jahtfg.safecycle.utils
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE

@@ -1,4 +1,4 @@
-package com.example.tfgsdkapp;
+package com.jahtfg.safecycle;
 
 import org.junit.Test;
 
